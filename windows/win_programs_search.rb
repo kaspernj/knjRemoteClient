@@ -41,7 +41,7 @@ class WinProgramsSearch
 		text = @gui["txtSearch"].text.gsub(":", "")
 		@tv.model.clear
 		
-		if (!force and text.strip.length < 4)
+		if !force and text.strip.length < 4
 			return nil
 		end
 		
@@ -52,15 +52,15 @@ class WinProgramsSearch
 			
 			if line == "endresults\n"
 				break
-			elsif(linearr[0] == "result")
+			elsif linearr[0] == "result"
 				@tv.append([linearr[1], linearr[2]])
 			end
 		end
 	end
 	
 	def on_btnExecute_clicked
-		sel = gtk_tv_getsel(@tv)
-		if (sel)
+		sel = @tv.sel
+		if sel
 			$socket.puts("search_execute:" + @paras["search"][0] + ":" + sel[0] + "\n")
 		end
 	end

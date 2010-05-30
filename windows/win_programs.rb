@@ -25,8 +25,8 @@ class WinPrograms
 	end
 	
 	def on_tvPrograms_row_activated
-		sel = gtk_tv_getsel(@tv)
-		if (sel and sel[0].to_i > 0)
+		sel = @tv.sel
+		if sel and sel[0].to_i > 0
 			program = $programs[sel[0]]
 			win_programs_choose = WinProgramsChoose.new(self, program)
 			@glade["window"].hide
