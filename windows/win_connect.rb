@@ -2,31 +2,26 @@ class WinConnect
 	def initialize
 		require "libglade2"
 		@glade = GladeXML.new("glade/win_connect.glade"){|handler|method(handler)}
-		@glade.get_widget("window").show_all
+		@glade["window"].show_all
 		
-		str_server = opt_get("default_server")
-		str_port = opt_get("default_port")
+		str_server = Opts.get("default_server")
+		str_port = Opts.get("default_port")
 		
-		@glade.get_widget("txtServer").set_text(str_server)
-		@glade.get_widget("txtPort").set_text(str_port)
-		
-		@window = @glade.get_widget("window")
+		@glade["txtServer"].text = str_server
+		@glade["txtPort"].text = str_port
 		
 		$programs = {}
 	end
 	
 	def on_btnConnect_clicked
-		str_server = @glade.get_widget("txtServer").text
-		str_port = @glade.get_widget("txtPort").text
+		str_server = @glade["txtServer"].text
+		str_port = @glade["txtPort"].text
 		
-		require "socket"
-		swindow = KnjStatusWindow.new({"transient_for" => @window})
-		
-		require "windows/win_programs.rb"
+		swindow = Gtk2::StatusWindow.new("transient_for" => @window)
 		@win_programs = WinPrograms.new
 		
 		Thread.new do
-			swindow.label = gettext("Connecting.")
+			swindow.label = _("Connecting.")
 			swindow.percent = 0.2
 			
 			begin
@@ -36,7 +31,7 @@ class WinConnect
 				puts e.backtrace
 				
 				swindow.percent = 0
-				swindow.label = gettext("Could not connect to server.")
+				swindow.label = _("Could not connect to server.")
 				
 				GLib::Timeout.add(2500) do
 					print "Destroy\n"
@@ -47,11 +42,11 @@ class WinConnect
 			end
 			
 			swindow.percent = 0.4
-			swindow.label = gettext("Sending hello-message.")
+			swindow.label = _("Sending hello-message.")
 			$socket.puts "Hello knjRemoteServer\n"
 			
 			swindow.percent = 0.6
-			swindow.label = gettext("Getting settings from server.")
+			swindow.label = _("Getting settings from server.")
 			
 			begin
 				while(line = readLine)
@@ -86,14 +81,14 @@ class WinConnect
 					end
 				end
 				
-				@glade.get_widget("window").hide
+				@glade["window"].hide
 				@win_programs.show
 			rescue => e
 				puts e.inspect
 				puts e.backtrace
 				
 				swindow.percent = 0
-				swindow.label = gettext("Could not get settings from the server.")
+				swindow.label = _("Could not get settings from the server.")
 				
 				GLib::Timeout.add(2500) do
 					swindow.destroy
@@ -103,7 +98,7 @@ class WinConnect
 			end
 			
 			swindow.destroy
-			@window.hide
+			@glade["window"].hide
 		end
 	end
 	
@@ -112,12 +107,12 @@ class WinConnect
 	end
 	
 	def on_window_destroy
-		str_server = @glade.get_widget("txtServer").text
-		str_port = @glade.get_widget("txtPort").text
+		str_server = @glade["txtServer"].text
+		str_port = @glade["txtPort"].text
 		
-		opt_set("default_server", str_server)
-		opt_set("default_port", str_port)
+		Opts.set("default_server", str_server)
+		Opts.set("default_port", str_port)
 		
-		Gtk::main_quit
+		Gtk.main_quit
 	end
 end

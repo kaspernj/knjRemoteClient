@@ -6,15 +6,13 @@ class WinProgramsSearch
 		@gui.add("glade/win_programs_search.ui")
 		@gui.connect_signals(){|handler|method(handler)}
 		
-		@window = @gui.get_object("window")
-		@window.title = @paras["program"]["title"] + " - " + gettext("Search")
+		@gui["window"].title = @paras["program"]["title"] + " - " + gettext("Search")
 		
-		@tv = @gui.get_object("tvResults")
-		require "knjrbfw/libknjgtk_tv"
-		gtk_tv_init(@tv, ["ID", "Title"])
+		@tv = @gui["tvResults"]
+		@tv.init(["ID", "Title"])
 		@tv.columns[0].visible = false
 		
-		@window.show_all
+		@gui["window"].show_all
 	end
 	
 	def on_window_destroy
@@ -28,7 +26,7 @@ class WinProgramsSearch
 	end
 	
 	def on_btnQuit_clicked
-		@window.destroy
+		@gui["window"].destroy
 	end
 	
 	def on_txtSearch_changed
@@ -40,7 +38,7 @@ class WinProgramsSearch
 	end
 	
 	def doSearch(force)
-		text = @gui.get_object("txtSearch").text.gsub(":", "")
+		text = @gui["txtSearch"].text.gsub(":", "")
 		@tv.model.clear
 		
 		if (!force and text.strip.length < 4)
@@ -55,7 +53,7 @@ class WinProgramsSearch
 			if line == "endresults\n"
 				break
 			elsif(linearr[0] == "result")
-				gtk_tv_append(@tv, [linearr[1], linearr[2]])
+				@tv.append([linearr[1], linearr[2]])
 			end
 		end
 	end

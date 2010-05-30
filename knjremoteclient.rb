@@ -2,47 +2,43 @@
 
 Dir.chdir(File.dirname(__FILE__))
 
-require "gtk2"
-require "knjrbfw/libknjgtk"
-require "knjrbfw/libknjgtk_statuswindow"
-require "knjrbfw/libknjos"
-require "knjrbfw/libknjphpfuncs"
+require "knj/autoload"
+require "knj/gtk2_tv"
+include Knj
 
-
+autoload :WinConnect, "windows/win_connect"
+autoload :WinPrograms, "windows/win_programs"
+autoload :WinProgramsSearch, "windows/win_programs_search"
+autoload :WinProgramsChoose, "windows/win_programs_choose"
 
 #Load config.
-homedir = KnjOS.homedir
+homedir = Os.homedir
 data_dir = homedir + "/.knj/knjremoteclient"
 db_fn = homedir + "/.knj/knjremoteclient/knjremoteclient.sqlite3"
 
-if (!File.exists?(data_dir))
+if !File.exists?(data_dir)
 	print "Making config-dir in home...\n"
-	require "fileutils"
 	FileUtils.mkdir_p(data_dir)
 end
 
-if (!File.exists?(db_fn))
+if !File.exists?(db_fn)
 	print "Making database in config-dir...\n"
-	require "fileutils"
 	FileUtils.copy("db/knjremoteclient.sqlite3", db_fn)
 end
 
 
 #Load database.
-require "knjrbfw/knjdb/libknjdb.rb"
-db = KnjDB.new({
+db = Db.new(
 	"type" => "sqlite3",
 	"path" => db_fn
-})
+)
 
 
 #Load options.
-require "knjrbfw/libknjoptions.rb"
-opt_setOpts({"knjdb" => db, "table" => "options"})
+Opts.init("knjdb" => db, "table" => "options")
 
 
 #Load language-module.
-require "gettext"
 include GetText
 bindtextdomain("locale", "locale")
 
@@ -64,7 +60,5 @@ def readLine
 	end
 end
 
-require "windows/win_connect.rb"
 win_connect = WinConnect.new
-
-Gtk::main
+Gtk.main

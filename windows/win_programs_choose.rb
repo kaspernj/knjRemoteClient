@@ -4,28 +4,27 @@ class WinProgramsChoose
 		@program = program
 		
 		@glade = GladeXML.new("glade/win_programs_choose.glade"){|handler|method(handler)}
-		@window = @glade.get_widget("window")
 		
 		@window.title = @program["title"] + " - " + gettext("Choose command")
 		
-		@tv = @glade.get_widget("tvCmds")
-		gtk_tv_init(@tv, ["ID", "Type", "Title"])
+		@tv = @glade["tvCmds"]
+		@tv.ini(["ID", "Type", "Title"])
 		
 		@tv.columns[0].set_visible(false)
 		@tv.columns[1].set_visible(false)
 		self.updateCmds
 		
 		
-		@window.show_all
+		@glade["window"].show_all
 	end
 	
 	def updateCmds
 		@program["cmds"].each do |pair|
-			gtk_tv_append(@tv, [pair[1]["id"], "cmd", pair[1]["title"]])
+			@tv.append([pair[1]["id"], "cmd", pair[1]["title"]])
 		end
 		
 		@program["schs"].each do |pair|
-			gtk_tv_append(@tv, [pair[1]["id"], "sch", pair[1]["title"]])
+			@tv.append([pair[1]["id"], "sch", pair[1]["title"]])
 		end
 	end
 	
@@ -35,8 +34,7 @@ class WinProgramsChoose
 			if sel[1] == "cmd"
 				$socket.send("execute:" + sel[0] + "\n", 0);
 			elsif sel[1] == "sch"
-				require "windows/win_programs_search.rb"
-				WinProgramsSearch.new({"parent_window" => @window, "search" => sel, "program" => @program})
+				WinProgramsSearch.new("parent_window" => @window, "search" => sel, "program" => @program)
 				@window.hide
 			end
 			
@@ -45,10 +43,10 @@ class WinProgramsChoose
 	end
 	
 	def on_btnBack_clicked
-		@glade.get_widget("window").destroy
+		@glade["window"].destroy
 	end
 	
 	def on_window_destroy
-		@win_programs.glade.get_widget("window").show
+		@win_programs.glade["window"].show
 	end
 end
